@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"strings"
+	"path/filepath"
 )
 
 //go:embed version
@@ -55,5 +56,5 @@ func GetExecPath() string {
         fmt.Println("fail to get exec path:", err)
         return fmt.Sprintf("/etc/%s", GetName())
     }
-    return path
+    return filepath.Dir(path)
 }
