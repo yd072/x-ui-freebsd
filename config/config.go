@@ -46,5 +46,14 @@ func IsDebug() bool {
 }
 
 func GetDBPath() string {
-	return fmt.Sprintf("~/%s/%s.db", GetName(), GetName())
+	return fmt.Sprintf("%s/%s.db", GetExecPath(), GetName())
+}
+
+func GetExecPath() string {
+    path, err := os.Executable()
+    if err != nil {
+        fmt.Println("fail to get exec path:", err)
+        return fmt.Sprintf("/etc/%s", GetName())
+    }
+    return path
 }
