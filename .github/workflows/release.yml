@@ -21,7 +21,7 @@ jobs:
           release_name: ${{ github.ref }}
           draft: true
           prerelease: true
-  linuxamd64build:
+  freebsdamd64build:
     name: build x-ui amd64 version
     needs: release
     runs-on: freebsd-latest
