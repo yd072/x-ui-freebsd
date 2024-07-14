@@ -24,7 +24,7 @@ jobs:
   freebsdamd64build:
     name: build x-ui amd64 version
     needs: release
-    runs-on: freebsd-latest
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
       - name: Set up Go
