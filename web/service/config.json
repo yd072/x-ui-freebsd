@@ -7,7 +7,17 @@
     ],
     "tag": "api"
   },
-  "inbounds": [],
+  "inbounds": [
+    {
+      "listen": "127.0.0.1",
+      "port": 62789,
+      "protocol": "dokodemo-door",
+      "settings": {
+        "address": "127.0.0.1"
+      },
+      "tag": "api"
+    }
+  ],
   "outbounds": [
     {
       "protocol": "freedom",
