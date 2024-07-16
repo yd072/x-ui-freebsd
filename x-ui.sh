@@ -345,7 +345,7 @@ check_status() {
 }
 
 check_enabled() {
-    cron_str=crontab -l
+    cron_str=$(crontab -l)
  
     # 检查grep的退出状态码
     if echo "$cron_str" | grep -Eqi "$enable_str"; then
