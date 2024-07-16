@@ -81,7 +81,7 @@ update() {
         fi
         return 0
     fi
-    bash <(curl -Ls https://github.com/parentalclash/x-ui-freebsd/raw/master/install.sh)
+    bash <(curl -Ls https://github.com/parentalclash/x-ui-freebsd/raw/main/install.sh)
     if [[ $? == 0 ]]; then
         LOGI "更新完成，已自动重启面板 "
         exit 0
@@ -108,7 +108,7 @@ stop_x-ui() {
 }
 
 install() {
-    bash <(curl -Ls https://github.com/parentalclash/x-ui-freebsd/raw/master/install.sh)
+    bash <(curl -Ls https://github.com/parentalclash/x-ui-freebsd/raw/main/install.sh)
     if [[ $? == 0 ]]; then
         if [[ $# == 0 ]]; then
             start
@@ -311,7 +311,7 @@ disable() {
 }
 
 update_shell() {
-    wget -O ~/x-ui.sh -N --no-check-certificate https://github.com/parentalclash/x-ui-freebsd/raw/master/x-ui.sh
+    wget -O ~/x-ui.sh -N --no-check-certificate https://github.com/parentalclash/x-ui-freebsd/raw/main/x-ui.sh
     if [[ $? != 0 ]]; then
         echo ""
         LOGE "下载脚本失败，请检查本机能否连接 Github"
