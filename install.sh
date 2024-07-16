@@ -44,14 +44,17 @@ config_after_install() {
         read -p "请设置面板流量监测端口:" config_traffic_port
         echo -e "${yellow}您的面板访问端口将设定为:${config_traffic_port}${plain}"
         echo -e "${yellow}确认设定,设定中${plain}"
-        /usr/local/x-ui/x-ui setting -username ${config_account} -password ${config_password}
+        ./x-ui/x-ui setting -username ${config_account} -password ${config_password}
         echo -e "${yellow}账户密码设定完成${plain}"
-        /usr/local/x-ui/x-ui setting -port ${config_port}
+        ./x-ui/x-ui setting -port ${config_port}
         echo -e "${yellow}面板访问端口设定完成${plain}"
-        /usr/local/x-ui/x-ui setting -trafficport ${config_traffic_port}
+        ./x-ui/x-ui setting -trafficport ${config_traffic_port}
         echo -e "${yellow}面板流量监测端口设定完成${plain}"
     else
         echo -e "${red}已取消,所有设置项均为默认设置,请及时修改${plain}"
+        echo -e "如果是全新安装，默认网页端口为 ${green}54321${plain}，默认流量监测端口为 ${green}54322${plain}，用户名和密码默认都是 ${green}admin${plain}"
+        echo -e "请自行确保此端口没有被其他程序占用，${yellow}并且确保 54321 和 54322 端口已放行${plain}"
+        echo -e "若想将 54321 和 54322 修改为其它端口，输入 x-ui 命令进行修改，同样也要确保你修改的端口也是放行的"
     fi
 }
 stop_x-ui() {
@@ -106,9 +109,6 @@ install_x-ui() {
     chmod +x ../x-ui.sh
     chmod +x x-ui.sh
     config_after_install
-    #echo -e "如果是全新安装，默认网页端口为 ${green}54321${plain}，默认流量监测端口为 ${green}54322${plain}，用户名和密码默认都是 ${green}admin${plain}"
-    #echo -e "请自行确保此端口没有被其他程序占用，${yellow}并且确保 54321 和 54322 端口已放行${plain}"
-    #    echo -e "若想将 54321 和 54322 修改为其它端口，输入 x-ui 命令进行修改，同样也要确保你修改的端口也是放行的"
     #echo -e ""
     #echo -e "如果是更新面板，则按你之前的方式访问面板"
     #echo -e ""
