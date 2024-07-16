@@ -176,7 +176,7 @@ func updateTgbotSetting(tgBotToken string, tgBotChatid int, tgBotRuntime string)
 	}
 }
 
-func updateSetting(port int, username string, password string) {
+func updateSetting(port int, trafficport int, username string, password string) {
 	err := database.InitDB(config.GetDBPath())
 	if err != nil {
 		fmt.Println(err)
@@ -191,6 +191,14 @@ func updateSetting(port int, username string, password string) {
 			fmt.Println("set port failed:", err)
 		} else {
 			fmt.Printf("set port %v success", port)
+		}
+	}
+	if trafficport > 0 {
+		err := settingService.SetTrafficPort(trafficport)
+		if err != nil {
+			fmt.Println("set traffic port failed:", err)
+		} else {
+			fmt.Printf("set traffic port %v success", port)
 		}
 	}
 	if username != "" || password != "" {
@@ -221,6 +229,7 @@ func main() {
 
 	settingCmd := flag.NewFlagSet("setting", flag.ExitOnError)
 	var port int
+	var trafficport int
 	var username string
 	var password string
 	var tgbottoken string
@@ -232,6 +241,7 @@ func main() {
 	settingCmd.BoolVar(&reset, "reset", false, "reset all settings")
 	settingCmd.BoolVar(&show, "show", false, "show current settings")
 	settingCmd.IntVar(&port, "port", 0, "set panel port")
+	settingCmd.IntVar(&trafficport, "trafficport", 0, "set traffic stats collection port")
 	settingCmd.StringVar(&username, "username", "", "set login username")
 	settingCmd.StringVar(&password, "password", "", "set login password")
 	settingCmd.StringVar(&tgbottoken, "tgbottoken", "", "set telegrame bot token")
@@ -282,7 +292,7 @@ func main() {
 		if reset {
 			resetSetting()
 		} else {
-			updateSetting(port, username, password)
+			updateSetting(port, trafficport, username, password)
 		}
 		if show {
 			showSetting(show)
