@@ -19,9 +19,9 @@ fi
 
 arch="none"
 
-if echo "$uname_output" | grep -Eqi 'x86_64\|amd64\|x64'; then
+if echo "$uname_output" | grep -Eqi 'x86_64|amd64|x64'; then
     arch="amd64"
-elif echo "$uname_output" | grep -Eqi 'aarch64\|arm64'; then
+elif echo "$uname_output" | grep -Eqi 'aarch64|arm64'; then
     arch="arm64"
 else
     arch="amd64"
@@ -77,6 +77,7 @@ install_x-ui() {
 
     if [ $# == 0 ]; then
         last_version='0.1.4'
+        https://github.com/parentalclash/x-ui-freebsd/releases/download/0.1.4/x-ui-freebsd-amd64.tar.gz
         wget -N --no-check-certificate -O x-ui-linux-${arch}.tar.gz https://github.com/parentalclash/x-ui-freebsd/releases/download/${last_version}/x-ui-linux-${arch}.tar.gz
         if [[ $? -ne 0 ]]; then
             echo -e "${red}下载 x-ui 失败，请确保你的服务器能够下载 Github 的文件${plain}"
