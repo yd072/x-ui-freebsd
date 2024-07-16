@@ -195,12 +195,12 @@ func (s *SettingService) GetXrayConfigTemplate() (string, error) {
 func (s *SettingService) SetTrafficPort(port int) error {
 	templateConfig, err := s.getString("xrayTemplateConfig")
 	if err != nil {
-		return nil, err
+		return err
 	}
 	xrayConfig := &xray.Config{}
 	err = json.Unmarshal([]byte(templateConfig), xrayConfig)
 	if err != nil {
-		return nil, err
+		return err
 	}
 	for _, inbound := range xrayConfig.InboundConfigs {
 		if inbound.Tag == "api" {
@@ -210,7 +210,7 @@ func (s *SettingService) SetTrafficPort(port int) error {
 	}
 	data, err := json.MarshalIndent(xrayConfig, "", "  ")
 	if err != nil {
-		return nil, err
+		return err
 	}
 	return s.setString("xrayTemplateConfig",string(data))
 }
