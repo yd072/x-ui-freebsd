@@ -7,8 +7,10 @@ plain='\033[0m'
 
 cur_dir=$(pwd)
 
+uname_output=$(uname -a)
+
 # check os
-if uname -a | grep -Eqi "freebsd"; then
+if echo "$uname_output" | grep -Eqi "freebsd"; then
     release="freebsd"
 else
     echo -e "${red}未检测到系统版本，请联系脚本作者！${plain}\n" && exit 1
@@ -16,9 +18,9 @@ fi
 
 arch="none"
 
-if [[ uname -a | grep -Eqi "x86_64" || uname -a | grep -Eqi "x64" || uname -a | grep -Eqi "amd64" ]]; then
+if echo "$uname_output" | grep -Eqi 'x86_64\|amd64\|x64'; then
     arch="amd64"
-elif [[ uname -a | grep -Eqi "aarch64" || uname -a | grep -Eqi "arm64" ]]; then
+elif echo "$uname_output" | grep -Eqi 'aarch64\|arm64'; then
     arch="arm64"
 else
     arch="amd64"
@@ -38,13 +40,15 @@ config_after_install() {
         echo -e "${yellow}您的账户密码将设定为:${config_password}${plain}"
         read -p "请设置面板访问端口:" config_port
         echo -e "${yellow}您的面板访问端口将设定为:${config_port}${plain}"
-        read -p "请设置面板流量数据端口:" config_data_port
-        echo -e "${yellow}您的面板访问端口将设定为:${config_data_port}${plain}"
+        read -p "请设置面板流量监测端口:" config_traffic_port
+        echo -e "${yellow}您的面板访问端口将设定为:${config_traffic_port}${plain}"
         echo -e "${yellow}确认设定,设定中${plain}"
         /usr/local/x-ui/x-ui setting -username ${config_account} -password ${config_password}
         echo -e "${yellow}账户密码设定完成${plain}"
         /usr/local/x-ui/x-ui setting -port ${config_port}
-        echo -e "${yellow}面板端口设定完成${plain}"
+        echo -e "${yellow}面板访问端口设定完成${plain}"
+        /usr/local/x-ui/x-ui setting -trafficport ${config_traffic_port}
+        echo -e "${yellow}面板流量监测端口设定完成${plain}"
     else
         echo -e "${red}已取消,所有设置项均为默认设置,请及时修改${plain}"
     fi
