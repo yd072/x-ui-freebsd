@@ -85,9 +85,9 @@ install_x-ui() {
         fi
     else
         last_version=$1
-        url="https://github.com/vaxilu/x-ui/releases/download/${last_version}/x-ui-{$release}-${arch}.tar.gz"
+        url="https://github.com/vaxilu/x-ui/releases/download/${last_version}/x-ui-${release}-${arch}.tar.gz"
         echo -e "开始安装 x-ui v$1"
-        wget -N --no-check-certificate -O x-ui-{$release}-${arch}.tar.gz ${url}
+        wget -N --no-check-certificate -O x-ui-${release}-${arch}.tar.gz ${url}
         if [[ $? -ne 0 ]]; then
             echo -e "${red}下载 x-ui v$1 失败，请确保此版本存在${plain}"
             exit 1
@@ -98,10 +98,10 @@ install_x-ui() {
         rm ./x-ui/ -rf
     fi
 
-    tar zxvf x-ui-{$release}-${arch}.tar.gz
-    rm x-ui-{$release}-${arch}.tar.gz -f
+    tar zxvf x-ui-${release}-${arch}.tar.gz
+    rm x-ui-${release}-${arch}.tar.gz -f
     cd x-ui
-    chmod +x x-ui bin/xray-{$release}-${arch}
+    chmod +x x-ui bin/xray-${release}-${arch}
     #cp -f x-ui.service /etc/systemd/system/
     cp x-ui.sh ../x-ui.sh
     chmod +x ../x-ui.sh
