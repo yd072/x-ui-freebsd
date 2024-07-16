@@ -99,6 +99,10 @@ func showSetting(show bool) {
 		if err != nil {
 			fmt.Println("get current port fialed,error info:", err)
 		}
+		path, err := settingService.GetBasePath()
+		if err != nil {
+			fmt.Println("get current path fialed,error info:", err)
+		}
 		userService := service.UserService{}
 		userModel, err := userService.GetFirstUser()
 		if err != nil {
@@ -113,6 +117,7 @@ func showSetting(show bool) {
 		fmt.Println("username:", username)
 		fmt.Println("userpasswd:", userpasswd)
 		fmt.Println("port:", port)
+		fmt.Println("path:", path)
 	}
 }
 
