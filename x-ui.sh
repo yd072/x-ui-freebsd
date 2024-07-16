@@ -17,51 +17,30 @@ function LOGE() {
 function LOGI() {
     echo -e "${green}[INF] $* ${plain}"
 }
-# check root
-[[ $EUID -ne 0 ]] && LOGE "错误:  必须使用root用户运行此脚本!\n" && exit 1
+
+cd ~
+uname_output=$(uname -a)
+enable_str="nohup ./x-ui run"
 
 # check os
-if [[ -f /etc/redhat-release ]]; then
-    release="centos"
-elif cat /etc/issue | grep -Eqi "debian"; then
-    release="debian"
-elif cat /etc/issue | grep -Eqi "ubuntu"; then
-    release="ubuntu"
-elif cat /etc/issue | grep -Eqi "centos|red hat|redhat"; then
-    release="centos"
-elif cat /proc/version | grep -Eqi "debian"; then
-    release="debian"
-elif cat /proc/version | grep -Eqi "ubuntu"; then
-    release="ubuntu"
-elif cat /proc/version | grep -Eqi "centos|red hat|redhat"; then
-    release="centos"
+if echo "$uname_output" | grep -Eqi "freebsd"; then
+    release="freebsd"
 else
-    LOGE "未检测到系统版本，请联系脚本作者！\n" && exit 1
+    echo -e "${red}未检测到系统版本，请联系脚本作者！${plain}\n" && exit 1
 fi
 
-os_version=""
+arch="none"
 
-# os version
-if [[ -f /etc/os-release ]]; then
-    os_version=$(awk -F'[= ."]' '/VERSION_ID/{print $3}' /etc/os-release)
-fi
-if [[ -z "$os_version" && -f /etc/lsb-release ]]; then
-    os_version=$(awk -F'[= ."]+' '/DISTRIB_RELEASE/{print $2}' /etc/lsb-release)
+if echo "$uname_output" | grep -Eqi 'x86_64\|amd64\|x64'; then
+    arch="amd64"
+elif echo "$uname_output" | grep -Eqi 'aarch64\|arm64'; then
+    arch="arm64"
+else
+    arch="amd64"
+    echo -e "${red}检测架构失败，使用默认架构: ${arch}${plain}"
 fi
 
-if [[ x"${release}" == x"centos" ]]; then
-    if [[ ${os_version} -le 6 ]]; then
-        LOGE "请使用 CentOS 7 或更高版本的系统！\n" && exit 1
-    fi
-elif [[ x"${release}" == x"ubuntu" ]]; then
-    if [[ ${os_version} -lt 16 ]]; then
-        LOGE "请使用 Ubuntu 16 或更高版本的系统！\n" && exit 1
-    fi
-elif [[ x"${release}" == x"debian" ]]; then
-    if [[ ${os_version} -lt 8 ]]; then
-        LOGE "请使用 Debian 8 或更高版本的系统！\n" && exit 1
-    fi
-fi
+echo "架构: ${arch}"
 
 confirm() {
     if [[ $# > 1 ]]; then
@@ -93,17 +72,6 @@ before_show_menu() {
     show_menu
 }
 
-install() {
-    bash <(curl -Ls https://raw.githubusercontent.com/vaxilu/x-ui/master/install.sh)
-    if [[ $? == 0 ]]; then
-        if [[ $# == 0 ]]; then
-            start
-        else
-            start 0
-        fi
-    fi
-}
-
 update() {
     confirm "本功能会强制重装当前最新版，数据不会丢失，是否继续?" "n"
     if [[ $? != 0 ]]; then
@@ -113,10 +81,40 @@ update() {
         fi
         return 0
     fi
-    bash <(curl -Ls https://raw.githubusercontent.com/vaxilu/x-ui/master/install.sh)
+    bash <(curl -Ls https://github.com/parentalclash/x-ui-freebsd/raw/master/install.sh)
     if [[ $? == 0 ]]; then
         LOGI "更新完成，已自动重启面板 "
         exit 0
+    fi
+}
+
+stop_x-ui() {
+    # 设置你想要杀死的nohup进程的命令名
+    COMMAND_NAME="./x-ui run"
+ 
+    # 使用pgrep查找进程ID
+    PID=$(pgrep -f "$COMMAND_NAME")
+ 
+    # 检查是否找到了进程
+    if [ ! -z "$PID" ]; then
+        # 找到了进程，杀死它
+        kill $PID
+    
+        # 可选：检查进程是否已经被杀死
+        if kill -0 $PID > /dev/null 2>&1; then
+            kill -9 $PID
+        fi
+    fi
+}
+
+install() {
+    bash <(curl -Ls https://github.com/parentalclash/x-ui-freebsd/raw/master/install.sh)
+    if [[ $? == 0 ]]; then
+        if [[ $# == 0 ]]; then
+            start
+        else
+            start 0
+        fi
     fi
 }
 
@@ -128,16 +126,17 @@ uninstall() {
         fi
         return 0
     fi
-    systemctl stop x-ui
-    systemctl disable x-ui
+    stop_x-ui
+    crontab -l > x-ui.cron
+    sed -i "" "/x-ui.log/d" x-ui.cron
+    crontab x-ui.cron
+    rm x-ui.cron
+    cd ~
     rm /etc/systemd/system/x-ui.service -f
-    systemctl daemon-reload
-    systemctl reset-failed
-    rm /etc/x-ui/ -rf
-    rm /usr/local/x-ui/ -rf
+    rm ~/x-ui/ -rf
 
     echo ""
-    echo -e "卸载成功，如果你想删除此脚本，则退出脚本后运行 ${green}rm /usr/bin/x-ui -f${plain} 进行删除"
+    echo -e "卸载成功，如果你想删除此脚本，则退出脚本后运行 ${green}rm ~/x-ui.sh -f${plain} 进行删除"
     echo ""
 
     if [[ $# == 0 ]]; then
@@ -153,7 +152,7 @@ reset_user() {
         fi
         return 0
     fi
-    /usr/local/x-ui/x-ui setting -username admin -password admin
+    ~/x-ui/x-ui setting -username admin -password admin
     echo -e "用户名和密码已重置为 ${green}admin${plain}，现在请重启面板"
     confirm_restart
 }
@@ -166,13 +165,13 @@ reset_config() {
         fi
         return 0
     fi
-    /usr/local/x-ui/x-ui setting -reset
+    ~/x-ui/x-ui setting -reset
     echo -e "所有面板设置已重置为默认值，现在请重启面板，并使用默认的 ${green}54321${plain} 端口访问面板"
     confirm_restart
 }
 
 check_config() {
-    info=$(/usr/local/x-ui/x-ui setting -show true)
+    info=$(~/x-ui/x-ui setting -show true)
     if [[ $? != 0 ]]; then
         LOGE "get current settings error,please check logs"
         show_menu
@@ -186,11 +185,24 @@ set_port() {
         LOGD "已取消"
         before_show_menu
     else
-        /usr/local/x-ui/x-ui setting -port ${port}
-        echo -e "设置端口完毕，现在请重启面板，并使用新设置的端口 ${green}${port}${plain} 访问面板"
+        ~/x-ui/x-ui setting -port ${port}
+        echo -e "设置面板访问端口完毕，现在请重启面板，并使用新设置的端口 ${green}${port}${plain} 访问面板"
         confirm_restart
     fi
 }
+
+set_traffic_port() {
+    echo && echo -n -e "输入流量监测端口号[1-65535]: " && read trafficport
+    if [[ -z "${trafficport}" ]]; then
+        LOGD "已取消"
+        before_show_menu
+    else
+        ~/x-ui/x-ui setting -trafficport ${trafficport}
+        echo -e "设置流量监测端口完毕，现在请重启面板，并使用新设置的端口 ${green}${trafficport}${plain} 访问面板"
+        confirm_restart
+    fi
+}
+
 
 start() {
     check_status
@@ -198,7 +210,8 @@ start() {
         echo ""
         LOGI "面板已运行，无需再次启动，如需重启请选择重启"
     else
-        systemctl start x-ui
+        cd ~/x-ui
+        nohup ./x-ui run > ./x-ui.log 2>&1 &
         sleep 2
         check_status
         if [[ $? == 0 ]]; then
@@ -219,7 +232,7 @@ stop() {
         echo ""
         LOGI "面板已停止，无需再次停止"
     else
-        systemctl stop x-ui
+        stop_x-ui
         sleep 2
         check_status
         if [[ $? == 1 ]]; then
@@ -235,7 +248,8 @@ stop() {
 }
 
 restart() {
-    systemctl restart x-ui
+    stop
+    start
     sleep 2
     check_status
     if [[ $? == 0 ]]; then
@@ -249,14 +263,26 @@ restart() {
 }
 
 status() {
-    systemctl status x-ui -l
+    COMMAND_NAME="./x-ui run"
+    PID=$(pgrep -f "$COMMAND_NAME")
+ 
+    # 检查是否找到了进程
+    if [ ! -z "$PID" ]; then
+        LOGI "x-ui 运行中"
+    else
+        LOGI "x-ui 没有运行"
+    fi
     if [[ $# == 0 ]]; then
         before_show_menu
     fi
 }
 
 enable() {
-    systemctl enable x-ui
+    crontab -l > x-ui.cron
+    sed -i "" "/$enable_str/d" x-ui.cron
+    echo "@reboot cd $cur_dir/x-ui && nohup ./x-ui run > ./x-ui.log 2>&1 &" >> x-ui.cron
+    crontab x-ui.cron
+    rm x-ui.cron
     if [[ $? == 0 ]]; then
         LOGI "x-ui 设置开机自启成功"
     else
@@ -269,7 +295,10 @@ enable() {
 }
 
 disable() {
-    systemctl disable x-ui
+    crontab -l > x-ui.cron
+    sed -i "" "/$enable_str/d" x-ui.cron
+    crontab x-ui.cron
+    rm x-ui.cron
     if [[ $? == 0 ]]; then
         LOGI "x-ui 取消开机自启成功"
     else
@@ -281,45 +310,28 @@ disable() {
     fi
 }
 
-show_log() {
-    journalctl -u x-ui.service -e --no-pager -f
-    if [[ $# == 0 ]]; then
-        before_show_menu
-    fi
-}
-
-migrate_v2_ui() {
-    /usr/local/x-ui/x-ui v2-ui
-
-    before_show_menu
-}
-
-install_bbr() {
-    # temporary workaround for installing bbr
-    bash <(curl -L -s https://raw.githubusercontent.com/teddysun/across/master/bbr.sh)
-    echo ""
-    before_show_menu
-}
-
 update_shell() {
-    wget -O /usr/bin/x-ui -N --no-check-certificate https://github.com/vaxilu/x-ui/raw/master/x-ui.sh
+    wget -O ~/x-ui.sh -N --no-check-certificate https://github.com/parentalclash/x-ui-freebsd/raw/master/x-ui.sh
     if [[ $? != 0 ]]; then
         echo ""
         LOGE "下载脚本失败，请检查本机能否连接 Github"
         before_show_menu
     else
-        chmod +x /usr/bin/x-ui
+        chmod +x ~/x-ui
         LOGI "升级脚本成功，请重新运行脚本" && exit 0
     fi
 }
 
 # 0: running, 1: not running, 2: not installed
 check_status() {
-    if [[ ! -f /etc/systemd/system/x-ui.service ]]; then
+    if [[ ! -f ~/x-ui/x-ui ]]; then
         return 2
     fi
-    temp=$(systemctl status x-ui | grep Active | awk '{print $3}' | cut -d "(" -f2 | cut -d ")" -f1)
-    if [[ x"${temp}" == x"running" ]]; then
+    COMMAND_NAME="./x-ui run"
+    PID=$(pgrep -f "$COMMAND_NAME")
+ 
+    # 检查是否找到了进程
+    if [ ! -z "$PID" ]; then
         return 0
     else
         return 1
@@ -327,8 +339,11 @@ check_status() {
 }
 
 check_enabled() {
-    temp=$(systemctl is-enabled x-ui)
-    if [[ x"${temp}" == x"enabled" ]]; then
+    crontab -l > x-ui.cron
+    grep -q -F "$enable_str" "x-ui.cron"
+ 
+    # 检查grep的退出状态码
+    if [ $? -eq 0 ]; then
         return 0
     else
         return 1
@@ -408,81 +423,6 @@ show_xray_status() {
     fi
 }
 
-ssl_cert_issue() {
-    echo -E ""
-    LOGD "******使用说明******"
-    LOGI "该脚本将使用Acme脚本申请证书,使用时需保证:"
-    LOGI "1.知晓Cloudflare 注册邮箱"
-    LOGI "2.知晓Cloudflare Global API Key"
-    LOGI "3.域名已通过Cloudflare进行解析到当前服务器"
-    LOGI "4.该脚本申请证书默认安装路径为/root/cert目录"
-    confirm "我已确认以上内容[y/n]" "y"
-    if [ $? -eq 0 ]; then
-        cd ~
-        LOGI "安装Acme脚本"
-        curl https://get.acme.sh | sh
-        if [ $? -ne 0 ]; then
-            LOGE "安装acme脚本失败"
-            exit 1
-        fi
-        CF_Domain=""
-        CF_GlobalKey=""
-        CF_AccountEmail=""
-        certPath=/root/cert
-        if [ ! -d "$certPath" ]; then
-            mkdir $certPath
-        else
-            rm -rf $certPath
-            mkdir $certPath
-        fi
-        LOGD "请设置域名:"
-        read -p "Input your domain here:" CF_Domain
-        LOGD "你的域名设置为:${CF_Domain}"
-        LOGD "请设置API密钥:"
-        read -p "Input your key here:" CF_GlobalKey
-        LOGD "你的API密钥为:${CF_GlobalKey}"
-        LOGD "请设置注册邮箱:"
-        read -p "Input your email here:" CF_AccountEmail
-        LOGD "你的注册邮箱为:${CF_AccountEmail}"
-        ~/.acme.sh/acme.sh --set-default-ca --server letsencrypt
-        if [ $? -ne 0 ]; then
-            LOGE "修改默认CA为Lets'Encrypt失败,脚本退出"
-            exit 1
-        fi
-        export CF_Key="${CF_GlobalKey}"
-        export CF_Email=${CF_AccountEmail}
-        ~/.acme.sh/acme.sh --issue --dns dns_cf -d ${CF_Domain} -d *.${CF_Domain} --log
-        if [ $? -ne 0 ]; then
-            LOGE "证书签发失败,脚本退出"
-            exit 1
-        else
-            LOGI "证书签发成功,安装中..."
-        fi
-        ~/.acme.sh/acme.sh --installcert -d ${CF_Domain} -d *.${CF_Domain} --ca-file /root/cert/ca.cer \
-        --cert-file /root/cert/${CF_Domain}.cer --key-file /root/cert/${CF_Domain}.key \
-        --fullchain-file /root/cert/fullchain.cer
-        if [ $? -ne 0 ]; then
-            LOGE "证书安装失败,脚本退出"
-            exit 1
-        else
-            LOGI "证书安装成功,开启自动更新..."
-        fi
-        ~/.acme.sh/acme.sh --upgrade --auto-upgrade
-        if [ $? -ne 0 ]; then
-            LOGE "自动更新设置失败,脚本退出"
-            ls -lah cert
-            chmod 755 $certPath
-            exit 1
-        else
-            LOGI "证书已安装且已开启自动更新,具体信息如下"
-            ls -lah cert
-            chmod 755 $certPath
-        fi
-    else
-        show_menu
-    fi
-}
-
 show_usage() {
     echo "x-ui 管理脚本使用方法: "
     echo "------------------------------------------"
@@ -493,8 +433,6 @@ show_usage() {
     echo "x-ui status       - 查看 x-ui 状态"
     echo "x-ui enable       - 设置 x-ui 开机自启"
     echo "x-ui disable      - 取消 x-ui 开机自启"
-    echo "x-ui log          - 查看 x-ui 日志"
-    echo "x-ui v2-ui        - 迁移本机器的 v2-ui 账号数据至 x-ui"
     echo "x-ui update       - 更新 x-ui 面板"
     echo "x-ui install      - 安装 x-ui 面板"
     echo "x-ui uninstall    - 卸载 x-ui 面板"
@@ -512,23 +450,21 @@ show_menu() {
 ————————————————
   ${green}4.${plain} 重置用户名密码
   ${green}5.${plain} 重置面板设置
-  ${green}6.${plain} 设置面板端口
+  ${green}6.${plain} 设置面板访问端口
   ${green}7.${plain} 查看当前面板设置
 ————————————————
   ${green}8.${plain} 启动 x-ui
   ${green}9.${plain} 停止 x-ui
   ${green}10.${plain} 重启 x-ui
   ${green}11.${plain} 查看 x-ui 状态
-  ${green}12.${plain} 查看 x-ui 日志
+  ${green}12.${plain} 设置流量监测端口
 ————————————————
   ${green}13.${plain} 设置 x-ui 开机自启
   ${green}14.${plain} 取消 x-ui 开机自启
 ————————————————
-  ${green}15.${plain} 一键安装 bbr (最新内核)
-  ${green}16.${plain} 一键申请SSL证书(acme申请)
  "
     show_status
-    echo && read -p "请输入选择 [0-16]: " num
+    echo && read -p "请输入选择 [0-14]: " num
 
     case "${num}" in
     0)
@@ -568,19 +504,13 @@ show_menu() {
         check_install && status
         ;;
     12)
-        check_install && show_log
+        check_install && set_traffic_port
         ;;
     13)
         check_install && enable
         ;;
     14)
         check_install && disable
-        ;;
-    15)
-        install_bbr
-        ;;
-    16)
-        ssl_cert_issue
         ;;
     *)
         LOGE "请输入正确的数字 [0-16]"
