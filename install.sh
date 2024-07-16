@@ -112,7 +112,7 @@ install_x-ui() {
     #echo -e ""
     #echo -e "如果是更新面板，则按你之前的方式访问面板"
     #echo -e ""
-    crontab -l > x-ui.cron
+    crontab -l > ~/x-ui/x-ui.cron
     sed -i "" "/x-ui.log/d" x-ui.cron
     echo "0 0 * * * cd $cur_dir/x-ui && cat /dev/null > x-ui.log" >> x-ui.cron
     echo "@reboot cd $cur_dir/x-ui && nohup ./x-ui run > ./x-ui.log 2>&1 &" >> x-ui.cron
