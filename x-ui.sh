@@ -31,9 +31,9 @@ fi
 
 arch="none"
 
-if echo "$uname_output" | grep -Eqi 'x86_64\|amd64\|x64'; then
+if echo "$uname_output" | grep -Eqi 'x86_64|amd64|x64'; then
     arch="amd64"
-elif echo "$uname_output" | grep -Eqi 'aarch64\|arm64'; then
+elif echo "$uname_output" | grep -Eqi 'aarch64|arm64'; then
     arch="arm64"
 else
     arch="amd64"
