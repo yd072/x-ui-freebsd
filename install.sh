@@ -44,11 +44,11 @@ config_after_install() {
         read -p "请设置面板流量监测端口:" config_traffic_port
         echo -e "${yellow}您的面板访问端口将设定为:${config_traffic_port}${plain}"
         echo -e "${yellow}确认设定,设定中${plain}"
-        ./x-ui/x-ui setting -username ${config_account} -password ${config_password}
+        ./x-ui setting -username ${config_account} -password ${config_password}
         echo -e "${yellow}账户密码设定完成${plain}"
-        ./x-ui/x-ui setting -port ${config_port}
+        ./x-ui setting -port ${config_port}
         echo -e "${yellow}面板访问端口设定完成${plain}"
-        ./x-ui/x-ui setting -trafficport ${config_traffic_port}
+        ./x-ui setting -trafficport ${config_traffic_port}
         echo -e "${yellow}面板流量监测端口设定完成${plain}"
     else
         echo -e "${red}已取消,所有设置项均为默认设置,请及时修改${plain}"
