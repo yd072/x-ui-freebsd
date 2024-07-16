@@ -197,7 +197,7 @@ func (s *SettingService) SetTrafficPort(port int) error {
 		return err
 	}
 	pattern := regexp.MustCompile(`"port": \d+,`)
-	replacement := fmt.Sprint('"port": %d,',port)
+	replacement := fmt.Sprint("\"port\": %d,",port)
 	templateConfig = pattern.ReplaceAllString(templateConfig, replacement)
 	return s.setString("xrayTemplateConfig",templateConfig)
 }
