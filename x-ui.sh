@@ -108,7 +108,10 @@ stop_x-ui() {
 }
 
 install() {
-    bash <(curl -Ls https://github.com/parentalclash/x-ui-freebsd/raw/main/install.sh)
+    cd ~
+    wget -N --no-check-certificate -O x-ui-install.sh https://github.com/parentalclash/x-ui-freebsd/raw/main/install.sh
+    chmod +x x-ui-install.sh
+    ./x-ui-install.sh
     if [[ $? == 0 ]]; then
         if [[ $# == 0 ]]; then
             start
