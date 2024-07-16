@@ -345,11 +345,10 @@ check_status() {
 }
 
 check_enabled() {
-    crontab -l > x-ui.cron
-    grep -q -F "$enable_str" "x-ui.cron"
+    cron_str=crontab -l
  
     # 检查grep的退出状态码
-    if [ $? -eq 0 ]; then
+    if echo "$cron_str" | grep -Eqi "$enable_str"; then
         return 0
     else
         return 1
