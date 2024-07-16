@@ -8,7 +8,7 @@ import (
 	"strconv"
 	"strings"
 	"time"
-	"encoding/json"
+	"regexp"
 	"x-ui/database"
 	"x-ui/database/model"
 	"x-ui/logger"
@@ -16,7 +16,6 @@ import (
 	"x-ui/util/random"
 	"x-ui/util/reflect_util"
 	"x-ui/web/entity"
-	"x-ui/xray"
 )
 
 //go:embed config.json
@@ -197,22 +196,10 @@ func (s *SettingService) SetTrafficPort(port int) error {
 	if err != nil {
 		return err
 	}
-	xrayConfig := &xray.Config{}
-	err = json.Unmarshal([]byte(templateConfig), xrayConfig)
-	if err != nil {
-		return err
-	}
-	for _, inbound := range xrayConfig.InboundConfigs {
-		if inbound.Tag == "api" {
-			inbound.Port = port
-			break
-		}
-	}
-	data, err := json.MarshalIndent(xrayConfig, "", "  ")
-	if err != nil {
-		return err
-	}
-	return s.setString("xrayTemplateConfig",string(data))
+	pattern := regexp.MustCompile(`"port": \d+,`)
+	replacement := fmt.Sprint('"port": %d,',port)
+	templateConfig = pattern.ReplaceAllString(templateConfig, replacement)
+	return s.setString("xrayTemplateConfig",templateConfig)
 }
 
 func (s *SettingService) GetListen() (string, error) {
