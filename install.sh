@@ -78,16 +78,16 @@ install_x-ui() {
     if [ $# == 0 ]; then
         last_version='0.1.4'
         https://github.com/parentalclash/x-ui-freebsd/releases/download/0.1.4/x-ui-freebsd-amd64.tar.gz
-        wget -N --no-check-certificate -O x-ui-linux-${arch}.tar.gz https://github.com/parentalclash/x-ui-freebsd/releases/download/${last_version}/x-ui-linux-${arch}.tar.gz
+        wget -N --no-check-certificate -O x-ui-${release}-${arch}.tar.gz https://github.com/parentalclash/x-ui-freebsd/releases/download/${last_version}/x-ui-${release}-${arch}.tar.gz
         if [[ $? -ne 0 ]]; then
             echo -e "${red}下载 x-ui 失败，请确保你的服务器能够下载 Github 的文件${plain}"
             exit 1
         fi
     else
         last_version=$1
-        url="https://github.com/vaxilu/x-ui/releases/download/${last_version}/x-ui-linux-${arch}.tar.gz"
+        url="https://github.com/vaxilu/x-ui/releases/download/${last_version}/x-ui-{$release}-${arch}.tar.gz"
         echo -e "开始安装 x-ui v$1"
-        wget -N --no-check-certificate -O x-ui-linux-${arch}.tar.gz ${url}
+        wget -N --no-check-certificate -O x-ui-{$release}-${arch}.tar.gz ${url}
         if [[ $? -ne 0 ]]; then
             echo -e "${red}下载 x-ui v$1 失败，请确保此版本存在${plain}"
             exit 1
@@ -98,10 +98,10 @@ install_x-ui() {
         rm ./x-ui/ -rf
     fi
 
-    tar zxvf x-ui-linux-${arch}.tar.gz
-    rm x-ui-linux-${arch}.tar.gz -f
+    tar zxvf x-ui-{$release}-${arch}.tar.gz
+    rm x-ui-{$release}-${arch}.tar.gz -f
     cd x-ui
-    chmod +x x-ui bin/xray-linux-${arch}
+    chmod +x x-ui bin/xray-{$release}-${arch}
     #cp -f x-ui.service /etc/systemd/system/
     cp x-ui.sh ../x-ui.sh
     chmod +x ../x-ui.sh
