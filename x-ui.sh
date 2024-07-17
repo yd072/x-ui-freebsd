@@ -93,10 +93,11 @@ update() {
 
 stop_x-ui() {
     # 设置你想要杀死的nohup进程的命令名
-    COMMAND_NAME="./x-ui run"
+    xui_com="./x-ui run"
+    xray_com="bin/xray-freebsd-amd64 -c bin/config.json"
  
     # 使用pgrep查找进程ID
-    PID=$(pgrep -f "$COMMAND_NAME")
+    PID=$(pgrep -f "$xray_com")
  
     # 检查是否找到了进程
     if [ ! -z "$PID" ]; then
@@ -108,6 +109,20 @@ stop_x-ui() {
             kill -9 $PID
         fi
     fi
+        # 使用pgrep查找进程ID
+    PID=$(pgrep -f "$xui_com")
+ 
+    # 检查是否找到了进程
+    if [ ! -z "$PID" ]; then
+        # 找到了进程，杀死它
+        kill $PID
+    
+        # 可选：检查进程是否已经被杀死
+        if kill -0 $PID > /dev/null 2>&1; then
+            kill -9 $PID
+        fi
+    fi
+
 }
 
 install() {
@@ -183,6 +198,9 @@ check_config() {
         show_menu
     fi
     LOGI "${info}"
+    if [[ $# == 0 ]]; then
+        before_show_menu
+    fi
 }
 
 set_port() {
@@ -542,12 +560,6 @@ if [[ $# > 0 ]]; then
         ;;
     "disable")
         check_install 0 && disable 0
-        ;;
-    "log")
-        check_install 0 && show_log 0
-        ;;
-    "v2-ui")
-        check_install 0 && migrate_v2_ui 0
         ;;
     "update")
         check_install 0 && update 0
