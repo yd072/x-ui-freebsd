@@ -536,7 +536,7 @@ show_menu() {
         check_install && disable
         ;;
     *)
-        LOGE "请输入正确的数字 [0-16]"
+        LOGE "请输入正确的数字 [0-14]"
         ;;
     esac
 }
