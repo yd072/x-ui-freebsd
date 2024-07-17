@@ -20,7 +20,7 @@ function LOGI() {
 
 cd ~
 uname_output=$(uname -a)
-enable_str="nohup ./x-ui run"
+enable_str="nohup \.\/x-ui run"
 
 # check os
 if echo "$uname_output" | grep -Eqi "freebsd"; then
