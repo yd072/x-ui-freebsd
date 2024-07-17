@@ -94,7 +94,7 @@ update() {
 stop_x-ui() {
     # 设置你想要杀死的nohup进程的命令名
     xui_com="./x-ui run"
-    xray_com="bin/xray-freebsd-amd64 -c bin/config.json"
+    xray_com="bin/xray-$release-$arch -c bin/config.json"
  
     # 使用pgrep查找进程ID
     PID=$(pgrep -f "$xray_com")
