@@ -16,7 +16,7 @@
 # 安装&升级
 
 ```
-wget -O x-ui.sh -N --no-check-certificate https://github.com/parentalclash/x-ui-freebsd/raw/main/x-ui.sh && chmod +x x-ui.sh && ./x-ui.sh
+wget -O x-ui.sh -N --no-check-certificate https://github.com/parentalclash/x-ui-freebsd/raw/main/x-ui.sh && chmod +x x-ui.sh && ./x-ui.sh install
 ```
 
 ## 手动安装&升级
