@@ -14,7 +14,7 @@
 - 更多高级配置项，详见面板
 
 # 安装&升级
-
+在安装前，请先准备好用户名，密码和两个端口（面板访问端口和流量监控端口）！
 ```
 wget -O x-ui.sh -N --no-check-certificate https://github.com/parentalclash/x-ui-freebsd/raw/main/x-ui.sh && chmod +x x-ui.sh && ./x-ui.sh install
 ```
