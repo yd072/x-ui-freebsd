@@ -1,4 +1,4 @@
-# x-ui
+# x-ui for FreeBSD
 
 支持多协议多用户的 xray 面板, 本版本支持FreeBSD非root安装。
 
