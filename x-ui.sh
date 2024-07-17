@@ -272,9 +272,8 @@ stop() {
 }
 
 restart() {
-    stop
-    sleep 2
-    start
+    stop 0
+    start 0
     sleep 2
     check_status
     if [[ $? == 0 ]]; then
