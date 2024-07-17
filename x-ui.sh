@@ -273,6 +273,7 @@ stop() {
 
 restart() {
     stop
+    sleep 2
     start
     sleep 2
     check_status
