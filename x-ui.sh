@@ -153,8 +153,7 @@ uninstall() {
     crontab x-ui.cron
     rm x-ui.cron
     cd ~
-    rm /etc/systemd/system/x-ui.service -f
-    rm ~/x-ui/ -rf
+    rm -rf ~/x-ui/
 
     echo ""
     echo -e "卸载成功，如果你想删除此脚本，则退出脚本后运行 ${green}rm ~/x-ui.sh -f${plain} 进行删除"
