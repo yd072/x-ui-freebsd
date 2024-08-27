@@ -127,7 +127,7 @@ stop_x-ui() {
 
 install() {
     cd ~
-    wget -N --no-check-certificate -O x-ui-install.sh https://raw.githubusercontent.com/parentalclash/x-ui-freebsd/main/install.sh
+    wget -N --no-check-certificate -O install.sh https://raw.githubusercontent.com/parentalclash/x-ui-freebsd/main/install.sh
     chmod +x install.sh
     ./install.sh
     if [[ $? == 0 ]]; then
