@@ -334,7 +334,7 @@ disable() {
 }
 
 update_shell() {
-    wget -O ~/x-ui.sh -N --no-check-certificate https://raw.githubusercontent.com/parentalclash/x-ui-freebsd/main/x-ui.sh
+    wget -O ~/x-ui.sh -N --no-check-certificate https://raw.githubusercontent.com/yd072/x-ui-freebsd/main/x-ui.sh
     if [[ $? != 0 ]]; then
         echo ""
         LOGE "下载脚本失败，请检查本机能否连接 Github"
